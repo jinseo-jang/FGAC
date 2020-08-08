@@ -1,5 +1,5 @@
-
 # Fine Grained Access Control
+**This procedure already verified in oracle 11gR2 on EC and RDS 19c**
 
 ## Definition
 FGAC makes specific user is only able to access specific data or column.  
