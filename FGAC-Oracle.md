@@ -25,7 +25,7 @@ You can set data access rule using FGAC, and application developers don't need t
 ## This is working for OnPrem oracle and RDS oracle
 
 ```
-SQL> create user user1 identified by Octank#1234 default tablespace users temporary tablespace temp quota unlimited on users;
+SQL> create user user1 identified by <PASSWORD> default tablespace users temporary tablespace temp quota unlimited on users;
 SQL> grant connect,resource to user1;
 SQL> grant create session, create any context, create procedure, create trigger, administer database trigger to user1;
 SQL> grant execute on dbms_session to user1;
@@ -142,11 +142,11 @@ SQL> exec dbms_rls.drop_policy('user1','emp','emp_policy');
 
 **Create Data Schema - octank, FGAC Schema - emp_admin**
 ```
-oracle@oracle11g:/home/oracle> sqlplus admin/Octank#1234@rds
-create user octank identified by Octank#1234 default tablespace users temporary tablespace temp quota unlimited on users;
+oracle@oracle11g:/home/oracle> sqlplus admin/<PASSWORD>@rds
+create user octank identified by <PASSWORD> default tablespace users temporary tablespace temp quota unlimited on users;
 grant connect,resource to octank;
 
-create user emp_admin identified by Octank#1234 default tablespace users temporary tablespace temp quota unlimited on users;
+create user emp_admin identified by <PASSWORD> default tablespace users temporary tablespace temp quota unlimited on users;
 grant connect,resource to emp_admin;
 grant create session, create any context, create procedure, create trigger, administer database trigger to emp_admin;
 grant execute on dbms_session to emp_admin;
@@ -155,7 +155,7 @@ grant execute on dbms_rls to emp_admin;
 
 **Create sample data in octank schema**
 ```
-oracle@oracle11g:/home/oracle> sqlplus octank/Octank#1234@rds
+oracle@oracle11g:/home/oracle> sqlplus octank/<PASSWORD>@rds
 SQL> @demobld.sql
 
 create table mapping as select EMPNO,ENAME from emp order by 1;
@@ -166,26 +166,26 @@ SQL> grant select on mapping to emp_admin;
 
 **Create oracle schemas based on emp table**
 ```
-oracle@oracle11g:/home/oracle> sqlplus admin/Octank#1234@rds
+oracle@oracle11g:/home/oracle> sqlplus admin/<PASSWORD>@rds
 
-SQL> select 'create user ' || ENAME || ' identified by Octank#1234 default tablespace users temporary tablespace temp quota unlimited on users;' as Query from emp order by empno;
+SQL> select 'create user ' || ENAME || ' identified by <PASSWORD> default tablespace users temporary tablespace temp quota unlimited on users;' as Query from emp order by empno;
 
 QUERY
 -----------------------------------------------------------------------------------------------------------------------------
-create user SMITH identified by Octank#1234 default tablespace users temporary tablespace temp quota unlimited on users;
-create user ALLEN identified by Octank#1234 default tablespace users temporary tablespace temp quota unlimited on users;
-create user WARD identified by Octank#1234 default tablespace users temporary tablespace temp quota unlimited on users;
-create user JONES identified by Octank#1234 default tablespace users temporary tablespace temp quota unlimited on users;
-create user MARTIN identified by Octank#1234 default tablespace users temporary tablespace temp quota unlimited on users;
-create user BLAKE identified by Octank#1234 default tablespace users temporary tablespace temp quota unlimited on users;
-create user CLARK identified by Octank#1234 default tablespace users temporary tablespace temp quota unlimited on users;
-create user SCOTT identified by Octank#1234 default tablespace users temporary tablespace temp quota unlimited on users;
-create user KING identified by Octank#1234 default tablespace users temporary tablespace temp quota unlimited on users;
-create user TURNER identified by Octank#1234 default tablespace users temporary tablespace temp quota unlimited on users;
-create user ADAMS identified by Octank#1234 default tablespace users temporary tablespace temp quota unlimited on users;
-create user JAMES identified by Octank#1234 default tablespace users temporary tablespace temp quota unlimited on users;
-create user FORD identified by Octank#1234 default tablespace users temporary tablespace temp quota unlimited on users;
-create user MILLER identified by Octank#1234 default tablespace users temporary tablespace temp quota unlimited on users;
+create user SMITH identified by <PASSWORD> default tablespace users temporary tablespace temp quota unlimited on users;
+create user ALLEN identified by <PASSWORD> default tablespace users temporary tablespace temp quota unlimited on users;
+create user WARD identified by <PASSWORD> default tablespace users temporary tablespace temp quota unlimited on users;
+create user JONES identified by <PASSWORD> default tablespace users temporary tablespace temp quota unlimited on users;
+create user MARTIN identified by <PASSWORD> default tablespace users temporary tablespace temp quota unlimited on users;
+create user BLAKE identified by <PASSWORD> default tablespace users temporary tablespace temp quota unlimited on users;
+create user CLARK identified by <PASSWORD> default tablespace users temporary tablespace temp quota unlimited on users;
+create user SCOTT identified by <PASSWORD> default tablespace users temporary tablespace temp quota unlimited on users;
+create user KING identified by <PASSWORD> default tablespace users temporary tablespace temp quota unlimited on users;
+create user TURNER identified by <PASSWORD> default tablespace users temporary tablespace temp quota unlimited on users;
+create user ADAMS identified by <PASSWORD> default tablespace users temporary tablespace temp quota unlimited on users;
+create user JAMES identified by <PASSWORD> default tablespace users temporary tablespace temp quota unlimited on users;
+create user FORD identified by <PASSWORD> default tablespace users temporary tablespace temp quota unlimited on users;
+create user MILLER identified by <PASSWORD> default tablespace users temporary tablespace temp quota unlimited on users;
 
 14 rows selected.
 
@@ -266,7 +266,7 @@ Grant succeeded.
 
 **Create user emp_admin who creates procedure & trigger to limit data access from users**
 ```
-oracle@oracle11g:/home/oracle> sqlplus emp_admin/Octank#1234@rds
+oracle@oracle11g:/home/oracle> sqlplus emp_admin/<PASSWORD>@rds
 
 create or replace context empno_ctx using empno_ctx_pkg;
 
@@ -304,7 +304,7 @@ END;
 
 **User defined context check using by SMITH**
 ```
-oracle@oracle11g:/home/oracle> sqlplus SMITH/Octank#1234@rds
+oracle@oracle11g:/home/oracle> sqlplus SMITH/<PASSWORD>@rds
 SQL> SELECT SYS_CONTEXT ('empno_ctx', 'empno_attr') empno_attrib FROM DUAL;
 
 EMPNO_ATTRIB
@@ -315,7 +315,7 @@ EMPNO_ATTRIB
 
 **Create policy & add**
 ```
-oracle@oracle11g:/home/oracle> sqlplus emp_admin/Octank#1234@rds
+oracle@oracle11g:/home/oracle> sqlplus emp_admin/<PASSWORD>@rds
 
 CREATE OR REPLACE FUNCTION get_emp_info(
 schema_p IN VARCHAR2,
@@ -343,7 +343,7 @@ END;
 
 **Check row level FGAC is working or not**
 ```
-oracle@oracle11g:/home/oracle> sqlplus SMITH/Octank#1234@rds
+oracle@oracle11g:/home/oracle> sqlplus SMITH/<PASSWORD>@rds
 
 SQL> select * from octank.emp;
 
@@ -351,7 +351,7 @@ SQL> select * from octank.emp;
 ---------- ---------- --------- ---------- --------- ---------- ---------- ----------
       7369 SMITH      CLERK	      7902 17-DEC-80	    800 		   20
 
-oracle@oracle11g:/home/oracle> sqlplus ALLEN/Octank#1234@rds
+oracle@oracle11g:/home/oracle> sqlplus ALLEN/<PASSWORD>@rds
 SQL> select * from octank.emp;
 
      EMPNO ENAME      JOB	       MGR HIREDATE	    SAL       COMM     DEPTNO
