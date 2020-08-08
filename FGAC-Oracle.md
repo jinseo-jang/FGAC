@@ -21,25 +21,14 @@ Once user connection is established, user application have no way to avoid FGAC.
 You can set data access rule using FGAC, and application developers don't need to care about their logic to implement limiting data access.
 
 
+# FGAC Case 1 : Hiding specific data based on important column such as salary, SSN
 
 ```
-SQL> @createuser
-Enter value for username: user1
-old   1: create user &username identified by Octank#1234 default tablespace users temporary tablespace temp quota unlimited on users
-new   1: create user user1 identified by Octank#1234 default tablespace users temporary tablespace temp quota unlimited on users
-
-User created.
-
-old   1: grant connect,resource to &username
-new   1: grant connect,resource to user1
-
-Grant succeeded.
-
-
+SQL> create user user1 identified by Octank#1234 default tablespace users temporary tablespace temp quota unlimited on users;
+SQL> grant connect,resource to user1;
+SQL> demobld.sql
 SQL> grant create session, create any context, create procedure, create trigger, administer database trigger to user1;
-
 SQL> grant execute on dbms_session to user1;
-
 SQL> grant execute on dbms_rls to user1;
 
 oracle@oracle11g:/home/oracle> sqlplus user1
