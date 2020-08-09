@@ -137,7 +137,7 @@ SQL> exec dbms_rls.drop_policy('user1','emp','emp_policy');
 
 
 
-# FGAC Case 2 : Row Level FGAC : Hiding specific data based on row data such 
+# FGAC Case 2 : Row Level FGAC : Hiding specific data based on row using user defined CONTEXT
 ## This is working for OnPrem oracle and RDS oracle
 
 **Create Data Schema - octank, FGAC Schema - emp_admin**
