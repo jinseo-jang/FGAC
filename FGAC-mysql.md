@@ -2,7 +2,7 @@
 
 # FAGC Case 1 :
 
-**Referenced by http://www.jeromeradix.com/2006/12/mysql-50-fine-grained-access-control.html**
+**Referenced by http://www.jeromeradix.com/2006/12/mysql-50-fine-grained-access-control.html**  
 **Some steps were changed due to syntax error and aurora engine characteristics**
 
 mysql> create database applidata;
