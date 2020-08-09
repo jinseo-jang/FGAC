@@ -290,9 +290,12 @@ begin
 END;
 /
 SQL> grant execute on empno_ctx_pkg to admin;
-
 Grant succeeded.
+```
 
+**Create database level trigger**
+```
+oracle@oracle11g:/home/oracle> sqlplus admin/<PASSWORD>@rds
 drop trigger set_empno_ctx_trigger;
 create trigger set_empno_ctx_trigger after logon on database
 begin
