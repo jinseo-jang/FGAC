@@ -123,3 +123,26 @@ mysql> select \* from credit_cards;
 +------+-------------+
 1 row in set (0.01 sec)
 ```
+
+**FGAC with IAM user**
+
+```
+mysql> create user userA identified with AWSAuthenticationPlugin AS 'RDS';
+Query OK, 0 rows affected (0.02 sec)
+
+mysql> grant all on applidata.\* to 'userA'@'%';
+Query OK, 0 rows affected (0.01 sec)
+
+kiwony@kiwonymac.com:/Users/kiwony> DBUSER=userA
+kiwony@kiwonymac.com:/Users/kiwony> TOKEN="$(aws rds generate-db-auth-token --hostname $RDSHOST --port 3306 --region ap-northeast-2 --username $DBUSER )"
+kiwony@kiwonymac.com:/Users/kiwony> mysql --host=$RDSHOST --port=3306 --ssl-ca=rds-combined-ca-bundle.pem --enable-cleartext-plugin --user=$DBUSER --password=$TOKEN
+
+kiwony@kiwonymac.com:/Users/kiwony> mysql --host=$RDSHOST --port=3306 --ssl-ca=rds-combined-ca-bundle.pem --enable-cleartext-plugin --user=$DBUSER --password=$TOKEN -e "Set @name='$DBUSER';set @pwd='UserA';select \* from credit_cards" applidata
+mysql: [Warning] Using a password on the command line interface can be insecure.
++------+-------------+
+| num | expire_date |
++------+-------------+
+| 1234 | 2020-08-09 |
++------+-------------+
+
+```
