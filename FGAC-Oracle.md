@@ -1,27 +1,29 @@
 # Fine Grained Access Control
+
 **This procedure already verified in oracle 11gR2 on EC and RDS 19c**
 
 ## Definition
+
 FGAC makes specific user is only able to access specific data or column.  
 It provides users transparently with only the data they need, so we can implement multi tenancy easily using it.  
 Even though there is one database or one table, users are able to using like they have their own database using FGAC.
 
-
 ## Benefits
-1. Security aspect 
-In Oracle, there is DB vault option.  
-DB vault provides lots of security features and one of them is limiting data access privileges based on rule.  
-You can define rule to limit access to specific table or data using DB vault.  
-So even if DABs have sys or system account, they are not able to access different schema's data because of DB vault.  
-But you need DB vault license to use the option.   
-You are able to limit data access without DB vault feature by FGAC.   
-Once user connection is established, user application have no way to avoid FGAC. So you can easily limit data access using FGAC.
 
-2. Simplicy 
-You can set data access rule using FGAC, and application developers don't need to care about their logic to implement limiting data access.
+1. Security aspect
+   In Oracle, there is DB vault option.  
+   DB vault provides lots of security features and one of them is limiting data access privileges based on rule.  
+   You can define rule to limit access to specific table or data using DB vault.  
+   So even if DABs have sys or system account, they are not able to access different schema's data because of DB vault.  
+   But you need DB vault license to use the option.  
+   You are able to limit data access without DB vault feature by FGAC.  
+   Once user connection is established, user application have no way to avoid FGAC. So you can easily limit data access using FGAC.
 
+2. Simplicy
+   You can set data access rule using FGAC, and application developers don't need to care about their logic to implement limiting data access.
 
 # FGAC Case 1 : Column Level FGAC : Hiding specific data based on important column such as salary, SSN
+
 ## This is working for OnPrem oracle and RDS oracle
 
 ```
@@ -33,12 +35,15 @@ SQL> grant execute on dbms_rls to user1;
 ```
 
 **Connect to database using user1 schema**
+
 ```
 oracle@oracle11g:/home/oracle> sqlplus user1
 SQL> demobld.sql
 
 ```
+
 **user1 is able to select all row in emp table**
+
 ```
 SQL> select * from emp order by empno order by 1;
      EMPNO ENAME      JOB	       MGR HIREDATE	    SAL       COMM     DEPTNO
@@ -63,6 +68,7 @@ SQL> select * from emp order by empno order by 1;
 **https://docs.oracle.com/en/database/oracle/oracle-database/19/arpls/DBMS_RLS.html#GUID-1E528A51-DE53-4961-8770-C53924E427CC**
 
 **Create Function to add where condition that only shows JOB in ('CLERK','SALESMAN')**
+
 ```
 SQL> create or replace function hide_sal_comm(
     v_schema in varchar2,
@@ -80,12 +86,14 @@ Function created.
 ```
 
 **Add Policy into schema.table, if user select column SAL or COMM, then hide_sal_comm function filtering the result**
+
 ```
 SQL> exec DBMS_RLS.ADD_POLICY ('user1', 'emp', 'emp_policy', 'user1', 'hide_sal_comm', 'select',false,true,false,null,false,'SAL,COMM');
 PL/SQL procedure successfully completed.
 ```
 
-**Same "select * from emp;" query shows result as JOB=CLERK or JOB=SALESMAN**
+**Same "select \* from emp;" query shows result as JOB=CLERK or JOB=SALESMAN**
+
 ```
 SQL> select * from emp;
 
@@ -103,6 +111,7 @@ SQL> select * from emp;
 ```
 
 **If there is no select on SAL,COMM column, then shows all datas**
+
 ```
 SQL> select EMPNO, ENAME,JOB,MGR,HIREDATE,DEPTNO from EMP order by 1;
 
@@ -125,8 +134,8 @@ SQL> select EMPNO, ENAME,JOB,MGR,HIREDATE,DEPTNO from EMP order by 1;
 14 rows selected.
 ```
 
-
 **drop poilcy procedure**
+
 ```
 SQL> exec dbms_rls.drop_policy('user1','emp','emp_policy');
 
@@ -134,13 +143,12 @@ SQL> exec dbms_rls.drop_policy('user1','emp','emp_policy');
 
 ```
 
-
-
-
 # FGAC Case 2 : Row Level FGAC : Hiding specific data based on row using user defined CONTEXT
+
 ## This is working for OnPrem oracle and RDS oracle
 
 **Create Data Schema - octank, FGAC Schema - emp_admin**
+
 ```
 oracle@oracle11g:/home/oracle> sqlplus admin/<PASSWORD>@rds
 create user octank identified by <PASSWORD> default tablespace users temporary tablespace temp quota unlimited on users;
@@ -154,6 +162,7 @@ grant execute on dbms_rls to emp_admin;
 ```
 
 **Create sample data in octank schema**
+
 ```
 oracle@oracle11g:/home/oracle> sqlplus octank/<PASSWORD>@rds
 SQL> @demobld.sql
@@ -165,6 +174,7 @@ SQL> grant select on mapping to emp_admin;
 ```
 
 **Create oracle schemas based on emp table**
+
 ```
 oracle@oracle11g:/home/oracle> sqlplus admin/<PASSWORD>@rds
 
@@ -255,9 +265,8 @@ grant select on octank.emp  to WARD;
 
 ```
 
-
-
 **grant select on octank.emp to emp_admin to create mapping table**
+
 ```
 SQL> grant select on octank.emp to emp_admin;
 
@@ -265,6 +274,7 @@ Grant succeeded.
 ```
 
 **Create user emp_admin who creates procedure & trigger to limit data access from users**
+
 ```
 oracle@oracle11g:/home/oracle> sqlplus emp_admin/<PASSWORD>@rds
 
@@ -294,6 +304,7 @@ Grant succeeded.
 ```
 
 **Create database level trigger**
+
 ```
 oracle@oracle11g:/home/oracle> sqlplus admin/<PASSWORD>@rds
 drop trigger set_empno_ctx_trigger;
@@ -306,6 +317,7 @@ END;
 ```
 
 **User defined context check using by SMITH**
+
 ```
 oracle@oracle11g:/home/oracle> sqlplus SMITH/<PASSWORD>@rds
 SQL> SELECT SYS_CONTEXT ('empno_ctx', 'empno_attr') empno_attrib FROM DUAL;
@@ -315,8 +327,8 @@ EMPNO_ATTRIB
 7369
 ```
 
-
 **Create policy & add**
+
 ```
 oracle@oracle11g:/home/oracle> sqlplus emp_admin/<PASSWORD>@rds
 
@@ -344,7 +356,8 @@ END;
 /
 ```
 
-**Check row level FGAC is working or not**
+**Check row level FGAC is working or not. The query shows only rows that belong to logon user.**
+
 ```
 oracle@oracle11g:/home/oracle> sqlplus SMITH/<PASSWORD>@rds
 
