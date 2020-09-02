@@ -1,6 +1,6 @@
 **This procedure already verified in Aurora MySQL 5.7.2081**
 
-# FAGC Case 1 :
+# FGAC Case 1 :
 
 **Referenced by http://www.jeromeradix.com/2006/12/mysql-50-fine-grained-access-control.html**  
 **Some steps were changed due to syntax error and aurora engine characteristics**
